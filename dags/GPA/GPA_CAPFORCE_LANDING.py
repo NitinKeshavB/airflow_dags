@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow.decorators import task
 import pendulum
 
-## operators 
+## operators
 from airflow.operators.dummy import DummyOperator
 from datetime import datetime, timedelta
 from airflow.sensors.external_task import ExternalTaskSensor
@@ -122,7 +122,7 @@ with DAG(
     GPA_CAPFORCE_LANDING_API_SOUTH = PostgresOperator(
         task_id = "GPA_CAPFORCE_LANDING_API_SOUTH",
         postgres_conn_id = "postgres_conn",
-        sql = "all_success",
+        sql = "select public.get_common_actor_name();",
         parameters={},
         autocommit=True,
         trigger_rule="all_success",

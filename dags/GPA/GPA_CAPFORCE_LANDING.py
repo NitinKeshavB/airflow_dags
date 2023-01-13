@@ -41,7 +41,7 @@ def _final_status(**kwargs):
 with DAG(
     dag_id="GPA_CAPFORCE_LANDING",
     start_date=datetime(2023, 1, 1),
-    schedule_interval="@Daily",
+    schedule_interval="45 0 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={

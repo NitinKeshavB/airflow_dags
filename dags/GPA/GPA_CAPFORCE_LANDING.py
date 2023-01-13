@@ -59,7 +59,7 @@ with DAG(
 	
 	##start task
     t0 = SlackWebhookOperator(
-        task_id='START_SLACK_NOTIFCATION'
+        task_id='START_SLACK_NOTIFCATION',
 		http_conn_id="slack_conn",
 		message=f"Started! {dag_run} , Dag schedule Time: {data_interval_start}",
     )

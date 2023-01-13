@@ -140,9 +140,10 @@ with DAG(
         external_dag_id = "GPA_CAPFORCE_LANDING",
         external_task_id = "GPA_CAPFORCE_LANDING_API_WEST",
         poke_interval = 60 ,
-        timeout = 600 ,
+        timeout = 300 ,
         soft_fail = False ,
         retries = 1 , 
+        execution_delta = timedelta(minutes=2)
     )
         ##Dependency setting
     t0 >> t1 >> PIX_PIX_LANDING_API_EAST

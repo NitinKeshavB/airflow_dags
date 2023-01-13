@@ -39,9 +39,9 @@ def _final_status(**kwargs):
 
 
 with DAG(
-    dag_id="GPA_CAPFORCE_LANDING",
+    dag_id="GPA_CAPFORCE_STAGING",
     start_date=pendulum.datetime(2021, 1, 1, tz="Australia/Sydney"),
-    schedule_interval="30 10 * * *",
+    schedule_interval="36 10 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={
@@ -107,53 +107,70 @@ with DAG(
     )
 
     ##task
-    GPA_CAPFORCE_LANDING_API_NORTH = SimpleHttpOperator(
-        task_id = "GPA_CAPFORCE_LANDING_API_NORTH",
-        http_conn_id = "http_conn_syd",
-        method = "GET",
-        endpoint = "api/temperature?name=melbourne",
-        headers={'Content-Type':'application/json'},
-        response_check=lambda response: "successfully" in response.text.lower(),
+    GPA_CAPFORCE_STAGING_DB_CATEGORY = DatabricksRunNowOperator(
+        task_id = "GPA_CAPFORCE_STAGING_DB_CATEGORY",
+        databricks_conn_id = "databricks_conn",
+        job_id = 627248161463014,
+        notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.category"},
         trigger_rule="all_success",
     )
 
 	##task
-    GPA_CAPFORCE_LANDING_API_WEST = DatabricksRunNowOperator(
-        task_id = "GPA_CAPFORCE_LANDING_API_WEST",
+    GPA_CAPFORCE_STAGING_DB_CITY = DatabricksRunNowOperator(
+        task_id = "GPA_CAPFORCE_STAGING_DB_CITY",
         databricks_conn_id = "databricks_conn",
-        job_id = 210549352490484,
-        notebook_params={"src_sys_cd" : "CAPF", "table_name" : "null"},
+        job_id = 627248161463014,
+        notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.city"},
         trigger_rule="all_success",
     )
 
-    ##task
-    GPA_CAPFORCE_LANDING_API_EAST = SimpleHttpOperator(
-        task_id = "GPA_CAPFORCE_LANDING_API_EAST",
-        http_conn_id = "http_conn_syd",
-        method = "GET",
-        endpoint = "api/temperature?name=sydney",
-        headers={'Content-Type':'application/json'},
-        response_check=lambda response: "successfully" in response.text.lower(),
+	##task
+    GPA_CAPFORCE_STAGING_DB_COUNTRY = DatabricksRunNowOperator(
+        task_id = "GPA_CAPFORCE_STAGING_DB_COUNTRY",
+        databricks_conn_id = "databricks_conn",
+        job_id = 627248161463014,
+        notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.country"},
         trigger_rule="all_success",
     )
 
-    ##task
-    GPA_CAPFORCE_LANDING_API_SOUTH = PostgresOperator(
-        task_id = "GPA_CAPFORCE_LANDING_API_SOUTH",
-        postgres_conn_id = "postgres_conn",
-        sql = "select public.get_common_actor_name();",
-        parameters={},
-        autocommit=True,
+	##task
+    GPA_CAPFORCE_STAGING_DB_ADDRESS = DatabricksRunNowOperator(
+        task_id = "GPA_CAPFORCE_STAGING_DB_ADDRESS",
+        databricks_conn_id = "databricks_conn",
+        job_id = 627248161463014,
+        notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.actor"},
         trigger_rule="all_success",
+    )
+
+	##task
+    GPA_CAPFORCE_STAGING_DB_CUSTOMER = DatabricksRunNowOperator(
+        task_id = "GPA_CAPFORCE_STAGING_DB_CUSTOMER",
+        databricks_conn_id = "databricks_conn",
+        job_id = 627248161463014,
+        notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.customer"},
+        trigger_rule="all_success",
+    )
+
+	##task
+    GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_SOUTH = ExternalTaskSensor(
+        task_id = "GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_SOUTH",
+        external_dag_id = "GPA_CAPFORCE_LANDING",
+        external_task_id = "GPA_CAPFORCE_LANDING_API_SOUTH",
+        poke_interval = 60 ,
+        timeout = 600 ,
+        soft_fail = False ,
+        execution_delta = timedelta(minutes=3),
+        retries = 1 , 
     )
         ##Dependency setting
-    t0 >> GPA_CAPFORCE_LANDING_API_NORTH
-    [GPA_CAPFORCE_LANDING_API_NORTH] >> GPA_CAPFORCE_LANDING_API_WEST
-    [GPA_CAPFORCE_LANDING_API_NORTH] >> GPA_CAPFORCE_LANDING_API_EAST
-    [GPA_CAPFORCE_LANDING_API_WEST, GPA_CAPFORCE_LANDING_API_NORTH] >> GPA_CAPFORCE_LANDING_API_SOUTH
+    t0 >> GPA_CAPFORCE_STAGING_DB_CATEGORY
+    t0 >> GPA_CAPFORCE_STAGING_DB_CITY
+    [GPA_CAPFORCE_STAGING_DB_CITY, GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_SOUTH] >> GPA_CAPFORCE_STAGING_DB_COUNTRY
+    [GPA_CAPFORCE_STAGING_DB_COUNTRY, GPA_CAPFORCE_STAGING_DB_CITY, GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_SOUTH] >> GPA_CAPFORCE_STAGING_DB_ADDRESS
+    [GPA_CAPFORCE_STAGING_DB_ADDRESS, GPA_CAPFORCE_STAGING_DB_COUNTRY, GPA_CAPFORCE_STAGING_DB_CITY, GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_SOUTH] >> GPA_CAPFORCE_STAGING_DB_CUSTOMER
         ##end tasks
-    GPA_CAPFORCE_LANDING_API_WEST >> tslacksuccess  >> tslackfail >> tend
+    GPA_CAPFORCE_STAGING_DB_COUNTRY >> tslacksuccess  >> tslackfail >> tend
         ##end tasks
-    GPA_CAPFORCE_LANDING_API_EAST >> tslacksuccess  >> tslackfail >> tend
+    GPA_CAPFORCE_STAGING_DB_ADDRESS >> tslacksuccess  >> tslackfail >> tend
         ##end tasks
-    GPA_CAPFORCE_LANDING_API_SOUTH >> tslacksuccess  >> tslackfail >> tend
+    GPA_CAPFORCE_STAGING_DB_CUSTOMER >> tslacksuccess  >> tslackfail >> tend

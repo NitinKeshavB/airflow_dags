@@ -41,7 +41,7 @@ def _final_status(**kwargs):
 with DAG(
     dag_id="PIX_PIX_LANDING",
     start_date=pendulum.datetime(2021, 1, 1, tz="Australia/Sydney"),
-    schedule_interval="9 10 * * *",
+    schedule_interval="33 10 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={
@@ -163,5 +163,9 @@ with DAG(
     t0 >> PIX_PIX_LANDING_API_NORTH
     [PIX_PIX_LANDING_API_NORTH, PIX_PIX_LANDING_API_EAST, GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_WEST] >> PIX_PIX_LANDING_API_WEST
     [PIX_PIX_LANDING_API_WEST, PIX_PIX_LANDING_API_NORTH, PIX_PIX_LANDING_API_EAST, GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_WEST] >> PIX_PIX_LANDING_API_SOUTH
+        ##end tasks
+    PIX_PIX_LANDING_API_WEST >> tslacksuccess  >> tslackfail >> tend
+        ##end tasks
+    PIX_PIX_LANDING_API_WEST >> tslacksuccess  >> tslackfail >> tend
         ##end tasks
     PIX_PIX_LANDING_API_SOUTH >> tslacksuccess  >> tslackfail >> tend

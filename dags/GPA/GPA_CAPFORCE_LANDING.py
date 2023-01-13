@@ -41,7 +41,7 @@ def _final_status(**kwargs):
 with DAG(
     dag_id="GPA_CAPFORCE_LANDING",
     start_date=pendulum.datetime(2021, 1, 1, tz="Australia/Sydney"),
-    schedule_interval="30 10 * * *",
+    schedule_interval="47 10 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={

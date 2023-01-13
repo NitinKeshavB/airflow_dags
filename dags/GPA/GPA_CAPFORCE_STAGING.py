@@ -41,7 +41,7 @@ def _final_status(**kwargs):
 with DAG(
     dag_id="GPA_CAPFORCE_STAGING",
     start_date=pendulum.datetime(2021, 1, 1, tz="Australia/Sydney"),
-    schedule_interval="36 10 * * *",
+    schedule_interval="51 10 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={
@@ -159,7 +159,7 @@ with DAG(
         poke_interval = 60 ,
         timeout = 600 ,
         soft_fail = False ,
-        execution_delta = timedelta(minutes=3),
+        execution_delta = timedelta(minutes=4),
         retries = 1 , 
     )
         ##Dependency setting

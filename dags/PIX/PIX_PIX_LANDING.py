@@ -64,14 +64,6 @@ with DAG(
 		message=f"Started! {dag_run} , Dag schedule Time: {data_interval_start}",
     )
 	
-	##start task
-    t1 = EmailOperator(
-		task_id='START_EMAIL_NOTIFCATION',
-        to='airflowmonitoring.alerts@gmail.com',
-        subject=f'Airflow Alert! Started {dag_run} , Dag schedule Time: {data_interval_start}',
-        html_content= f"""Hi Team, <br><br>Started {dag_run} , Dag schedule Time: {data_interval_start} <br><br> Thank You. <br>""",
-        dag=dag
-    )
 
     ##end_task
     tslackfail = SlackWebhookOperator(
@@ -89,14 +81,6 @@ with DAG(
 		trigger_rule=TriggerRule.ALL_DONE,
 	)
     
-	##end_task
-    tsuccessemail = EmailOperator(
-		task_id='TSUCCESSEMAIL',
-        to='airflowmonitoring.alerts@gmail.com',
-        subject=f'Airflow Alert! Success {dag_run} , Dag schedule Time: {data_interval_start}',
-        html_content= f"""Hi Team, <br><br>Success {dag_run} , Dag schedule Time: {data_interval_start} <br><br> Thank You. <br>""",
-        trigger_rule="all_success"
-	)
 
     ##task
     PIX_PIX_LANDING_API_EAST = DatabricksRunNowOperator(
@@ -146,9 +130,9 @@ with DAG(
         execution_delta = timedelta(minutes=2)
     )
         ##Dependency setting
-    t0 >> t1 >> PIX_PIX_LANDING_API_EAST
-    t0 >> t1 >> PIX_PIX_LANDING_API_NORTH
+    t0 >>  PIX_PIX_LANDING_API_EAST
+    t0 >>  PIX_PIX_LANDING_API_NORTH
     [PIX_PIX_LANDING_API_NORTH, PIX_PIX_LANDING_API_EAST, GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_WEST] >> PIX_PIX_LANDING_API_WEST
     [PIX_PIX_LANDING_API_WEST, PIX_PIX_LANDING_API_NORTH, PIX_PIX_LANDING_API_EAST, GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_WEST] >> PIX_PIX_LANDING_API_SOUTH
         ##end tasks
-    PIX_PIX_LANDING_API_SOUTH >> tsuccessemail  >> tslackfail >> tend
+    PIX_PIX_LANDING_API_SOUTH >>  tslackfail >> tend

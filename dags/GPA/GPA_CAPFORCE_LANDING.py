@@ -40,8 +40,8 @@ def _final_status(**kwargs):
 
 with DAG(
     dag_id="GPA_CAPFORCE_LANDING",
-    start_date=datetime(2023, 1, 1),
-    schedule_interval="45 0 * * *",
+    start_date=pendulum.datetime(2021, 1, 1, tz="Australia/Sydney"),
+    schedule_interval="0 10 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={
@@ -64,6 +64,14 @@ with DAG(
 		message=f"Started! {dag_run} , Dag schedule Time: {data_interval_start}",
     )
 	
+	##start task
+    #t1 = EmailOperator(
+	#	task_id='START_EMAIL_NOTIFCATION',
+    #    to='airflowmonitoring.alerts@gmail.com',
+    #    subject=f'Airflow Alert! Started {dag_run} , Dag schedule Time: {data_interval_start}',
+    #    html_content= f"""Hi Team, <br><br>Started {dag_run} , Dag schedule Time: {data_interval_start} <br><br> Thank You. <br>""",
+    #    dag=dag
+    #)
 
     ##end_task
     tslackfail = SlackWebhookOperator(
@@ -81,13 +89,29 @@ with DAG(
 		trigger_rule=TriggerRule.ALL_DONE,
 	)
     
+	##end_task
+    #tsuccessemail = EmailOperator(
+	#	task_id='TSUCCESSEMAIL',
+    #    to='airflowmonitoring.alerts@gmail.com',
+    #    subject=f'Airflow Alert! Success {dag_run} , Dag schedule Time: {data_interval_start}',
+    #    html_content= f"""Hi Team, <br><br>Success {dag_run} , Dag schedule Time: {data_interval_start} <br><br> Thank You. <br>""",
+    #    trigger_rule="all_success"
+	#)
+	
+	##end_task
+    tslacksuccess = SlackWebhookOperator(
+        task_id="TSLACKSUCCESS",
+        http_conn_id="slack_conn",
+        message=f"Sucsess! {dag_run} , Dag schedule Time: {data_interval_start}",
+        trigger_rule=TriggerRule.ONE_FAILED,
+    )
 
     ##task
     GPA_CAPFORCE_LANDING_API_NORTH = SimpleHttpOperator(
         task_id = "GPA_CAPFORCE_LANDING_API_NORTH",
         http_conn_id = "http_conn_syd",
         method = "GET",
-        endpoint = "api/temperature?name=sydney",
+        endpoint = "api/temperature?name=melbourne",
         headers={'Content-Type':'application/json'},
         response_check=lambda response: "successfully" in response.text.lower(),
         trigger_rule="all_success",
@@ -102,12 +126,14 @@ with DAG(
         trigger_rule="all_success",
     )
 
-	##task
-    GPA_CAPFORCE_LANDING_API_EAST = DatabricksRunNowOperator(
+    ##task
+    GPA_CAPFORCE_LANDING_API_EAST = SimpleHttpOperator(
         task_id = "GPA_CAPFORCE_LANDING_API_EAST",
-        databricks_conn_id = "databricks_conn",
-        job_id = 210549352490484,
-        notebook_params={"src_sys_cd" : "CAPF", "table_name" : "null"},
+        http_conn_id = "http_conn_syd",
+        method = "GET",
+        endpoint = "api/temperature?name=sydney",
+        headers={'Content-Type':'application/json'},
+        response_check=lambda response: "successfully" in response.text.lower(),
         trigger_rule="all_success",
     )
 
@@ -121,9 +147,9 @@ with DAG(
         trigger_rule="all_success",
     )
         ##Dependency setting
-    t0 >>  GPA_CAPFORCE_LANDING_API_NORTH
+    t0 >> GPA_CAPFORCE_LANDING_API_NORTH
     [GPA_CAPFORCE_LANDING_API_NORTH] >> GPA_CAPFORCE_LANDING_API_WEST
     [GPA_CAPFORCE_LANDING_API_NORTH] >> GPA_CAPFORCE_LANDING_API_EAST
     [GPA_CAPFORCE_LANDING_API_WEST, GPA_CAPFORCE_LANDING_API_NORTH] >> GPA_CAPFORCE_LANDING_API_SOUTH
         ##end tasks
-    GPA_CAPFORCE_LANDING_API_SOUTH >>  tslackfail >> tend
+    GPA_CAPFORCE_LANDING_API_SOUTH >> tslacksuccess  >> tslackfail >> tend

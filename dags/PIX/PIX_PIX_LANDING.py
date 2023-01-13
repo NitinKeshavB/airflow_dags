@@ -40,8 +40,8 @@ def _final_status(**kwargs):
 
 with DAG(
     dag_id="PIX_PIX_LANDING",
-    start_date=datetime(2023, 1, 1),
-    schedule_interval="47 0 * * *",
+    start_date=pendulum.datetime(2021, 1, 1, tz="Australia/Sydney"),
+    schedule_interval="3 10 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={
@@ -64,6 +64,14 @@ with DAG(
 		message=f"Started! {dag_run} , Dag schedule Time: {data_interval_start}",
     )
 	
+	##start task
+    #t1 = EmailOperator(
+	#	task_id='START_EMAIL_NOTIFCATION',
+    #    to='airflowmonitoring.alerts@gmail.com',
+    #    subject=f'Airflow Alert! Started {dag_run} , Dag schedule Time: {data_interval_start}',
+    #    html_content= f"""Hi Team, <br><br>Started {dag_run} , Dag schedule Time: {data_interval_start} <br><br> Thank You. <br>""",
+    #    dag=dag
+    #)
 
     ##end_task
     tslackfail = SlackWebhookOperator(
@@ -81,22 +89,41 @@ with DAG(
 		trigger_rule=TriggerRule.ALL_DONE,
 	)
     
+	##end_task
+    #tsuccessemail = EmailOperator(
+	#	task_id='TSUCCESSEMAIL',
+    #    to='airflowmonitoring.alerts@gmail.com',
+    #    subject=f'Airflow Alert! Success {dag_run} , Dag schedule Time: {data_interval_start}',
+    #    html_content= f"""Hi Team, <br><br>Success {dag_run} , Dag schedule Time: {data_interval_start} <br><br> Thank You. <br>""",
+    #    trigger_rule="all_success"
+	#)
+	
+	##end_task
+    tslacksuccess = SlackWebhookOperator(
+        task_id="TSLACKSUCCESS",
+        http_conn_id="slack_conn",
+        message=f"Sucsess! {dag_run} , Dag schedule Time: {data_interval_start}",
+        trigger_rule=TriggerRule.ONE_FAILED,
+    )
 
     ##task
-    PIX_PIX_LANDING_API_EAST = DatabricksRunNowOperator(
+    PIX_PIX_LANDING_API_EAST = SimpleHttpOperator(
         task_id = "PIX_PIX_LANDING_API_EAST",
-        databricks_conn_id = "databricks_conn",
-        job_id = 210549352490484,
-        notebook_params={"src_sys_cd" : "PIX", "table_name" : "null"},
+        http_conn_id = "http_conn_syd",
+        method = "GET",
+        endpoint = "api/temperature?name=brisbane",
+        headers={'Content-Type':'application/json'},
+        response_check=lambda response: "successfully" in response.text.lower(),
         trigger_rule="all_success",
     )
 
-	##task
-    PIX_PIX_LANDING_API_NORTH = DatabricksRunNowOperator(
+    ##task
+    PIX_PIX_LANDING_API_NORTH = PostgresOperator(
         task_id = "PIX_PIX_LANDING_API_NORTH",
-        databricks_conn_id = "databricks_conn",
-        job_id = 210549352490484,
-        notebook_params={"src_sys_cd" : "PIX", "table_name" : "null"},
+        postgres_conn_id = "postgres_conn",
+        sql = "select get_actor_count();",
+        parameters={},
+        autocommit=True,
         trigger_rule="all_success",
     )
 
@@ -109,12 +136,14 @@ with DAG(
         trigger_rule="all_success",
     )
 
-	##task
-    PIX_PIX_LANDING_API_SOUTH = DatabricksRunNowOperator(
+    ##task
+    PIX_PIX_LANDING_API_SOUTH = SimpleHttpOperator(
         task_id = "PIX_PIX_LANDING_API_SOUTH",
-        databricks_conn_id = "databricks_conn",
-        job_id = 210549352490484,
-        notebook_params={"src_sys_cd" : "PIX", "table_name" : "null"},
+        http_conn_id = "http_conn_syd",
+        method = "GET",
+        endpoint = "api/temperature?name=hobart",
+        headers={'Content-Type':'application/json'},
+        response_check=lambda response: "successfully" in response.text.lower(),
         trigger_rule="all_success",
     )
 
@@ -124,15 +153,15 @@ with DAG(
         external_dag_id = "GPA_CAPFORCE_LANDING",
         external_task_id = "GPA_CAPFORCE_LANDING_API_WEST",
         poke_interval = 60 ,
-        timeout = 300 ,
+        timeout = 600 ,
         soft_fail = False ,
+        execution_delta = timedelta(minutes=3),
         retries = 1 , 
-        execution_delta = timedelta(minutes=2)
     )
         ##Dependency setting
-    t0 >>  PIX_PIX_LANDING_API_EAST
-    t0 >>  PIX_PIX_LANDING_API_NORTH
+    t0 >> PIX_PIX_LANDING_API_EAST
+    t0 >> PIX_PIX_LANDING_API_NORTH
     [PIX_PIX_LANDING_API_NORTH, PIX_PIX_LANDING_API_EAST, GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_WEST] >> PIX_PIX_LANDING_API_WEST
     [PIX_PIX_LANDING_API_WEST, PIX_PIX_LANDING_API_NORTH, PIX_PIX_LANDING_API_EAST, GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_WEST] >> PIX_PIX_LANDING_API_SOUTH
         ##end tasks
-    PIX_PIX_LANDING_API_SOUTH >>  tslackfail >> tend
+    PIX_PIX_LANDING_API_SOUTH >> tslacksuccess  >> tslackfail >> tend

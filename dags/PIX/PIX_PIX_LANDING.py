@@ -39,7 +39,7 @@ def _final_status(**kwargs):
 
 
 with DAG(
-    dag_id="GPA_CAPFORCE_LANDING",
+    dag_id="PIX_PIX_LANDING",
     start_date=datetime(2023, 1, 1),
     schedule_interval="@Daily",
     catchup=False,
@@ -99,45 +99,55 @@ with DAG(
 	)
 
     ##task
-    GPA_CAPFORCE_LANDING_API_NORTH = SimpleHttpOperator(
-        task_id = "GPA_CAPFORCE_LANDING_API_NORTH",
-        http_conn_id = "http_conn_syd",
-        method = "GET",
-        endpoint = "api/temperature?name=sydney",
-        headers={'Content-Type':'application/json'},
-        response_check=lambda response: "successfully" in response.text.lower(),
+    PIX_PIX_LANDING_API_EAST = DatabricksRunNowOperator(
+        task_id = "PIX_PIX_LANDING_API_EAST",
+        databricks_conn_id = "databricks_conn",
+        job_id = 210549352490484,
+        notebook_params={"src_sys_cd" : "PIX", "table_name" : "null"},
         trigger_rule="all_success",
     )
 
 	##task
-    GPA_CAPFORCE_LANDING_API_WEST = DatabricksRunNowOperator(
-        task_id = "GPA_CAPFORCE_LANDING_API_WEST",
+    PIX_PIX_LANDING_API_NORTH = DatabricksRunNowOperator(
+        task_id = "PIX_PIX_LANDING_API_NORTH",
         databricks_conn_id = "databricks_conn",
         job_id = 210549352490484,
-        notebook_params={"src_sys_cd" : "CAPF", "table_name" : "null"},
+        notebook_params={"src_sys_cd" : "PIX", "table_name" : "null"},
         trigger_rule="all_success",
     )
 
 	##task
-    GPA_CAPFORCE_LANDING_API_EAST = DatabricksRunNowOperator(
-        task_id = "GPA_CAPFORCE_LANDING_API_EAST",
+    PIX_PIX_LANDING_API_WEST = DatabricksRunNowOperator(
+        task_id = "PIX_PIX_LANDING_API_WEST",
         databricks_conn_id = "databricks_conn",
         job_id = 210549352490484,
-        notebook_params={"src_sys_cd" : "CAPF", "table_name" : "null"},
+        notebook_params={"src_sys_cd" : "PIX", "table_name" : "null"},
         trigger_rule="all_success",
     )
 
-    ##task
-    GPA_CAPFORCE_LANDING_API_SOUTH = PostgresOperator(
-        task_id = "GPA_CAPFORCE_LANDING_API_SOUTH",
-        postgres_conn_id = "postgres_conn",
-        sql = "select public.get_common_actor_name();",
-        parameters={},
-        autocommit=True,
+	##task
+    PIX_PIX_LANDING_API_SOUTH = DatabricksRunNowOperator(
+        task_id = "PIX_PIX_LANDING_API_SOUTH",
+        databricks_conn_id = "databricks_conn",
+        job_id = 210549352490484,
+        notebook_params={"src_sys_cd" : "PIX", "table_name" : "null"},
         trigger_rule="all_success",
+    )
+
+	##task
+    GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_WEST = ExternalTaskSensor(
+        task_id = "GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_WEST",
+        external_dag_id = "GPA_CAPFORCE_LANDING",
+        external_task_id = "GPA_CAPFORCE_LANDING_API_WEST",
+        poke_interval = 60 ,
+        timeout = 600 ,
+        soft_fail = False ,
+        retries = 1 , 
     )
         ##Dependency setting
-    t0 >> t1 >> GPA_CAPFORCE_LANDING_API_NORTH
-    [GPA_CAPFORCE_LANDING_API_NORTH] >> GPA_CAPFORCE_LANDING_API_WEST
-    [GPA_CAPFORCE_LANDING_API_NORTH] >> GPA_CAPFORCE_LANDING_API_EAST
-    [GPA_CAPFORCE_LANDING_API_WEST, GPA_CAPFORCE_LANDING_API_NORTH] >> GPA_CAPFORCE_LANDING_API_SOUTH
+    t0 >> t1 >> PIX_PIX_LANDING_API_EAST
+    t0 >> t1 >> PIX_PIX_LANDING_API_NORTH
+    [PIX_PIX_LANDING_API_NORTH, PIX_PIX_LANDING_API_EAST, GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_WEST] >> PIX_PIX_LANDING_API_WEST
+    [PIX_PIX_LANDING_API_WEST, PIX_PIX_LANDING_API_NORTH, PIX_PIX_LANDING_API_EAST, GPA_CAPFORCE_LANDING__wait__GPA_CAPFORCE_LANDING_API_WEST] >> PIX_PIX_LANDING_API_SOUTH
+        ##end tasks
+    PIX_PIX_LANDING_API_SOUTH >> tsuccessemail  >> tslackfail >> tend

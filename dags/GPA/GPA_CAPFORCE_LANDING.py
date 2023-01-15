@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow.decorators import task
 import pendulum
 
-## operators 
+## operators
 from airflow.operators.dummy import DummyOperator
 from datetime import datetime, timedelta
 from airflow.sensors.external_task import ExternalTaskSensor
@@ -41,7 +41,7 @@ def _final_status(**kwargs):
 with DAG(
     dag_id="GPA_CAPFORCE_LANDING",
     start_date=pendulum.datetime(2021, 1, 1, tz="Australia/Sydney"),
-    schedule_interval="16 11 * * *",
+    schedule_interval="16 39 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={

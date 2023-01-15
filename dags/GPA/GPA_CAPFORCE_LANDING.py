@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow.decorators import task
 import pendulum
 
-## operators
+## operators 
 from airflow.operators.dummy import DummyOperator
 from datetime import datetime, timedelta
 from airflow.sensors.external_task import ExternalTaskSensor

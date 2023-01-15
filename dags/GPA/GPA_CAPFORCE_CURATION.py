@@ -40,8 +40,8 @@ def _final_status(**kwargs):
 
 with DAG(
     dag_id="GPA_CAPFORCE_CURATION",
-    start_date=pendulum.datetime(2023, 1, 15, tz="Australia/Sydney"),
-    schedule_interval="25 16 * * *",
+    start_date=pendulum.datetime(2023, 1, 14, tz="Australia/Sydney"),
+    schedule_interval="28 16 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={

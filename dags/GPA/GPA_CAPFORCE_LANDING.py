@@ -17,6 +17,7 @@ from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
 
+
 ##utils
 from airflow.exceptions import AirflowException
 from airflow.utils.state import State
@@ -41,7 +42,7 @@ def _final_status(**kwargs):
 with DAG(
     dag_id="GPA_CAPFORCE_LANDING",
     start_date=pendulum.datetime(2023, 1, 14, tz="Australia/Sydney"),
-    schedule_interval="50 18 * * *",
+    schedule_interval="50 9 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={

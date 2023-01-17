@@ -39,7 +39,7 @@ with DAG(
 
    task_http_sensor_check = HttpSensor(
     task_id="http_sensor_check",
-    http_conn_id="http_conn",
+    http_conn_id="http_conn_syd",
     endpoint="",
     request_params={},
     response_check=lambda response: "successfully" in response.text,

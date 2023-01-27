@@ -39,8 +39,8 @@ with DAG(
 
    task_http_sensor_check = HttpSensor(
     task_id="http_sensor_check",
-    http_conn_id="http_conn_syd",
-    endpoint="api/temperature?name=brisbane",
+    http_conn_id="http_conn",
+    endpoint="",
     request_params={},
     response_check=lambda response: "successfully" in response.text,
     poke_interval=5,
@@ -52,7 +52,7 @@ with DAG(
 
    task_http_operator_check = SimpleHttpOperator(
     task_id="task_operator_check",
-    http_conn_id="http_conn_syd",
+    http_conn_id="http_conn",
     method = 'GET',
     endpoint="api/temperature?name=sydney",
     headers={'Content-Type':'application/json'},

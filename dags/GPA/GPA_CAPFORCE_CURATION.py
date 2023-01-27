@@ -42,7 +42,7 @@ def _final_status(**kwargs):
 with DAG(
     dag_id="GPA_CAPFORCE_CURATION",
     start_date=pendulum.datetime(2023, 1, 14, tz="Australia/Sydney"),
-    schedule_interval="50 9 * * *",
+    schedule_interval="13 18 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={
@@ -111,7 +111,7 @@ with DAG(
     GPA_CAPFORCE_CURATION_DB_FILM_ACTOR = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_CURATION_DB_FILM_ACTOR",
         databricks_conn_id = "databricks_conn",
-        job_id = 93571360578381,
+        job_id = 940385758333039,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.film_actor"},
         trigger_rule="all_success",
     )
@@ -120,7 +120,7 @@ with DAG(
     GPA_CAPFORCE_CURATION_DB_LANGUAGE = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_CURATION_DB_LANGUAGE",
         databricks_conn_id = "databricks_conn",
-        job_id = 93571360578381,
+        job_id = 940385758333039,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.language"},
         trigger_rule="all_success",
     )
@@ -129,7 +129,7 @@ with DAG(
     GPA_CAPFORCE_CURATION_DB_STAFF = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_CURATION_DB_STAFF",
         databricks_conn_id = "databricks_conn",
-        job_id = 93571360578381,
+        job_id = 940385758333039,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.staff"},
         trigger_rule="all_success",
     )
@@ -138,7 +138,7 @@ with DAG(
     GPA_CAPFORCE_CURATION_DB_STORE = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_CURATION_DB_STORE",
         databricks_conn_id = "databricks_conn",
-        job_id = 93571360578381,
+        job_id = 940385758333039,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.store"},
         trigger_rule="all_success",
     )
@@ -147,7 +147,7 @@ with DAG(
     GPA_CAPFORCE_CURATION_DB_INVENTORY = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_CURATION_DB_INVENTORY",
         databricks_conn_id = "databricks_conn",
-        job_id = 93571360578381,
+        job_id = 940385758333039,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.inventory"},
         trigger_rule="all_success",
     )
@@ -156,7 +156,7 @@ with DAG(
     GPA_CAPFORCE_CURATION_DB_FILM_CATEGORY = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_CURATION_DB_FILM_CATEGORY",
         databricks_conn_id = "databricks_conn",
-        job_id = 93571360578381,
+        job_id = 940385758333039,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.film_category"},
         trigger_rule="all_success",
     )
@@ -165,7 +165,7 @@ with DAG(
     GPA_CAPFORCE_CURATION_DB_PAYMENT = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_CURATION_DB_PAYMENT",
         databricks_conn_id = "databricks_conn",
-        job_id = 93571360578381,
+        job_id = 940385758333039,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.payment"},
         trigger_rule="all_success",
     )
@@ -174,7 +174,7 @@ with DAG(
     GPA_CAPFORCE_CURATION_DB_RENTAL = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_CURATION_DB_RENTAL",
         databricks_conn_id = "databricks_conn",
-        job_id = 93571360578381,
+        job_id = 940385758333039,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.rental"},
         trigger_rule="all_success",
     )

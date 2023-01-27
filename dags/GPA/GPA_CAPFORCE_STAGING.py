@@ -42,7 +42,7 @@ def _final_status(**kwargs):
 with DAG(
     dag_id="GPA_CAPFORCE_STAGING",
     start_date=pendulum.datetime(2023, 1, 14, tz="Australia/Sydney"),
-    schedule_interval="50 9 * * *",
+    schedule_interval="13 18 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={
@@ -111,7 +111,7 @@ with DAG(
     GPA_CAPFORCE_STAGING_DB_CATEGORY = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_STAGING_DB_CATEGORY",
         databricks_conn_id = "databricks_conn",
-        job_id = 627248161463014,
+        job_id = 38781149346540,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.category"},
         trigger_rule="all_success",
     )
@@ -120,7 +120,7 @@ with DAG(
     GPA_CAPFORCE_STAGING_DB_CITY = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_STAGING_DB_CITY",
         databricks_conn_id = "databricks_conn",
-        job_id = 627248161463014,
+        job_id = 38781149346540,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.city"},
         trigger_rule="all_success",
     )
@@ -129,7 +129,7 @@ with DAG(
     GPA_CAPFORCE_STAGING_DB_COUNTRY = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_STAGING_DB_COUNTRY",
         databricks_conn_id = "databricks_conn",
-        job_id = 627248161463014,
+        job_id = 38781149346540,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.country"},
         trigger_rule="all_success",
     )
@@ -138,7 +138,7 @@ with DAG(
     GPA_CAPFORCE_STAGING_DB_ADDRESS = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_STAGING_DB_ADDRESS",
         databricks_conn_id = "databricks_conn",
-        job_id = 627248161463014,
+        job_id = 38781149346540,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.actor"},
         trigger_rule="all_success",
     )
@@ -147,7 +147,7 @@ with DAG(
     GPA_CAPFORCE_STAGING_DB_CUSTOMER = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_STAGING_DB_CUSTOMER",
         databricks_conn_id = "databricks_conn",
-        job_id = 627248161463014,
+        job_id = 38781149346540,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "public.customer"},
         trigger_rule="all_success",
     )

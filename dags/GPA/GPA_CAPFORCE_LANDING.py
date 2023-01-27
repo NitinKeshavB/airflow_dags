@@ -42,7 +42,7 @@ def _final_status(**kwargs):
 with DAG(
     dag_id="GPA_CAPFORCE_LANDING",
     start_date=pendulum.datetime(2023, 1, 14, tz="Australia/Sydney"),
-    schedule_interval="50 9 * * *",
+    schedule_interval="13 18 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={
@@ -110,7 +110,7 @@ with DAG(
     ##task
     GPA_CAPFORCE_LANDING_API_NORTH = SimpleHttpOperator(
         task_id = "GPA_CAPFORCE_LANDING_API_NORTH",
-        http_conn_id = "http_conn_syd",
+        http_conn_id = "http_conn",
         method = "GET",
         endpoint = "api/temperature?name=melbourne",
         headers={'Content-Type':'application/json'},
@@ -122,7 +122,7 @@ with DAG(
     GPA_CAPFORCE_LANDING_API_WEST = DatabricksRunNowOperator(
         task_id = "GPA_CAPFORCE_LANDING_API_WEST",
         databricks_conn_id = "databricks_conn",
-        job_id = 210549352490484,
+        job_id = 261858309211816,
         notebook_params={"src_sys_cd" : "CAPF", "table_name" : "null"},
         trigger_rule="all_success",
     )
@@ -130,7 +130,7 @@ with DAG(
     ##task
     GPA_CAPFORCE_LANDING_API_EAST = SimpleHttpOperator(
         task_id = "GPA_CAPFORCE_LANDING_API_EAST",
-        http_conn_id = "http_conn_syd",
+        http_conn_id = "http_conn",
         method = "GET",
         endpoint = "api/temperature?name=sydney",
         headers={'Content-Type':'application/json'},

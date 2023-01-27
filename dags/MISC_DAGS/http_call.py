@@ -40,7 +40,7 @@ with DAG(
    task_http_sensor_check = HttpSensor(
     task_id="http_sensor_check",
     http_conn_id="http_conn",
-    endpoint="",
+    endpoint="api/temperature?name=cairns",
     request_params={},
     response_check=lambda response: "successfully" in response.text,
     poke_interval=5,

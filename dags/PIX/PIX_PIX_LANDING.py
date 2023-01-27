@@ -42,7 +42,7 @@ def _final_status(**kwargs):
 with DAG(
     dag_id="PIX_PIX_LANDING",
     start_date=pendulum.datetime(2023, 1, 14, tz="Australia/Sydney"),
-    schedule_interval="13 18 * * *",
+    schedule_interval="32 18 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={
@@ -122,7 +122,7 @@ with DAG(
     PIX_PIX_LANDING_API_NORTH = PostgresOperator(
         task_id = "PIX_PIX_LANDING_API_NORTH",
         postgres_conn_id = "postgres_conn",
-        sql = "select get_actor_count();",
+        sql = "select get_film_count();",
         parameters={},
         autocommit=True,
         trigger_rule="all_success",

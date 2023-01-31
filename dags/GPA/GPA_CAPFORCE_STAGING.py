@@ -11,7 +11,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 ##providers
-from airflow.providers.databricks.operators.databricks import  DatabricksRunNowOperator
+from airflow.providers.databricks.operators.databricks import DatabricksRunNowOperator
 from airflow.providers.http.sensors.http import HttpSensor
 from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator

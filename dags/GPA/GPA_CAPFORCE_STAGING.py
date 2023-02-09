@@ -42,7 +42,7 @@ def _final_status(**kwargs):
 with DAG(
     dag_id="GPA_CAPFORCE_STAGING",
     start_date=pendulum.datetime(2023, 1, 14, tz="Australia/Sydney"),
-    schedule_interval=" 15 13 * * *",
+    schedule_interval=" 26 14 * * *",
     catchup=False,
 	render_template_as_native_obj=True,
     default_args={

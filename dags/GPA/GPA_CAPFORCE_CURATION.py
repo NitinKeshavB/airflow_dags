@@ -59,11 +59,11 @@ with DAG(
     dag_run_time = "{{ ts }}"
 	
 	##start task
-    t0 = SlackWebhookOperator(
-        task_id='START_SLACK_NOTIFCATION',
-		http_conn_id="slack_conn",
-		message=f"Started! {dag_run} , Dag schedule Time: {data_interval_start}",
-    )
+    #t0 = SlackWebhookOperator(
+    #    task_id='START_SLACK_NOTIFCATION',
+    #	http_conn_id="slack_conn",
+    #message=f"Started! {dag_run} , Dag schedule Time: {data_interval_start}",
+    #)
 	
 	##start task
     #t1 = EmailOperator(
@@ -75,12 +75,12 @@ with DAG(
     #)
 
     ##end_task
-    tslackfail = SlackWebhookOperator(
-        task_id="TSLACKFAIL",
-        http_conn_id="slack_conn",
-        message=f"Failed! {dag_run} , Dag schedule Time: {data_interval_start}",
-        trigger_rule=TriggerRule.ONE_FAILED,
-    )
+    #tslackfail = SlackWebhookOperator(
+    #    task_id="TSLACKFAIL",
+    #    http_conn_id="slack_conn",
+    #    message=f"Failed! {dag_run} , Dag schedule Time: {data_interval_start}",
+    #    trigger_rule=TriggerRule.ONE_FAILED,
+    #)
 
 	##end_task
     tend = PythonOperator(
@@ -100,12 +100,12 @@ with DAG(
 	#)
 	
 	##end_task
-    tslacksuccess = SlackWebhookOperator(
-        task_id="TSLACKSUCCESS",
-        http_conn_id="slack_conn",
-        message=f"Sucsess! {dag_run} , Dag schedule Time: {data_interval_start}",
-        trigger_rule="all_success",
-    )
+    #tslacksuccess = SlackWebhookOperator(
+    #    task_id="TSLACKSUCCESS",
+    #    http_conn_id="slack_conn",
+    #    message=f"Sucsess! {dag_run} , Dag schedule Time: {data_interval_start}",
+    #    trigger_rule="all_success",
+    #)
 
     ##task
     GPA_CAPFORCE_CURATION_DB_FILM_ACTOR = DatabricksRunNowOperator(
@@ -191,19 +191,19 @@ with DAG(
         retries = 1 , 
     )
         ##Dependency setting
-    t0 >> GPA_CAPFORCE_CURATION_DB_FILM_ACTOR
-    t0 >> GPA_CAPFORCE_CURATION_DB_LANGUAGE
-    t0 >> GPA_CAPFORCE_CURATION_DB_STAFF
-    t0 >> GPA_CAPFORCE_CURATION_DB_STORE
+     GPA_CAPFORCE_CURATION_DB_FILM_ACTOR
+     GPA_CAPFORCE_CURATION_DB_LANGUAGE
+     GPA_CAPFORCE_CURATION_DB_STAFF
+     GPA_CAPFORCE_CURATION_DB_STORE
     [GPA_CAPFORCE_CURATION_DB_STORE, GPA_CAPFORCE_STAGING__wait__GPA_CAPFORCE_STAGING_DB_CUSTOMER] >> GPA_CAPFORCE_CURATION_DB_INVENTORY
     [GPA_CAPFORCE_CURATION_DB_LANGUAGE] >> GPA_CAPFORCE_CURATION_DB_FILM_CATEGORY
     [GPA_CAPFORCE_CURATION_DB_STAFF] >> GPA_CAPFORCE_CURATION_DB_PAYMENT
     [GPA_CAPFORCE_CURATION_DB_STORE, GPA_CAPFORCE_STAGING__wait__GPA_CAPFORCE_STAGING_DB_CUSTOMER] >> GPA_CAPFORCE_CURATION_DB_RENTAL
         ##end tasks
-    GPA_CAPFORCE_CURATION_DB_INVENTORY >> tslacksuccess  >> tslackfail >> tend
+    GPA_CAPFORCE_CURATION_DB_INVENTORY >>  tend
         ##end tasks
-    GPA_CAPFORCE_CURATION_DB_FILM_CATEGORY >> tslacksuccess  >> tslackfail >> tend
+    GPA_CAPFORCE_CURATION_DB_FILM_CATEGORY >> tend
         ##end tasks
-    GPA_CAPFORCE_CURATION_DB_PAYMENT >> tslacksuccess  >> tslackfail >> tend
+    GPA_CAPFORCE_CURATION_DB_PAYMENT >> tend
         ##end tasks
-    GPA_CAPFORCE_CURATION_DB_RENTAL >> tslacksuccess  >> tslackfail >> tend
+    GPA_CAPFORCE_CURATION_DB_RENTAL  >> tend

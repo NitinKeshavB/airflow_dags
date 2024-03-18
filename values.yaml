@@ -65,22 +65,28 @@ containerLifecycleHooks: {}
 airflowHome: /opt/airflow
 
 # Default airflow repository -- overridden by all the specific images below
-defaultAirflowRepository: apache/airflow
+defaultAirflowRepository: docker.io/nitinkeshavb/apache-airflow-2.8.1
+#nitinkeshavb/airflow-2.8.1
+#apache/airflow
 
 # Default airflow tag to deploy
 defaultAirflowTag: "2.8.1"
+#"latest"
+#"2.8.1"
 
 # Default airflow digest. If specified, it takes precedence over tag
 defaultAirflowDigest: ~
 
 # Airflow version (Used to make some decisions based on Airflow Version being deployed)
 airflowVersion: "2.8.1"
+#"latest"
+#"2.8.1"
 
 # Images
 images:
   airflow:
-    repository: ~
-    tag: ~
+    repository: docker.io/nitinkeshavb/apache-airflow-2.8.1
+    tag: 2.8.1
     # Specifying digest takes precedence over tag.
     digest: ~
     pullPolicy: IfNotPresent
@@ -289,8 +295,10 @@ env:
     value: "#000000"
   #- name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONNECT_ARGS
   #  value: airflow_local_settings.keepalive_kwargs
-# - name: ""
-#   value: ""
+  - name: "AIRFLOW_TEST_VAR"
+    value: "TESTING_VAR"
+  - name: AIRFLOW__CORE__SECURE_MODE
+    value: 'true'
 
 # Volumes for all airflow containers
 volumes: []
@@ -299,10 +307,13 @@ volumes: []
 volumeMounts: []
 
 # Secrets for all airflow containers
-secret: []
-# - envName: ""
-#   secretName: ""
-#   secretKey: ""
+secret:
+ #- envName: "AIRFLOW_CONN_DATABRICKS_DEFAULT"
+ #  secretName: "airflow-connection-databricks"
+ #  secretKey: "AIRFLOW_CONN_DATABRICKS_DEFAULT"
+ #- envName: "slack_conn_var"
+ #  secretName: "prod-airflow-connections"
+ #  secretKey: "slack_conn"
 
 # Enables selected built-in secrets that are set via environment variables by default.
 # Those secrets are provided by the Helm Chart secrets by default but in some cases you
@@ -320,6 +331,8 @@ enableBuiltInSecretEnvVars:
   AIRFLOW__CELERY__BROKER_URL: true
   AIRFLOW__ELASTICSEARCH__HOST: true
   AIRFLOW__ELASTICSEARCH__ELASTICSEARCH_HOST: true
+
+  
 
 
 # Priority Classes that will be installed by charts.
@@ -347,6 +360,15 @@ extraSecrets:
   airflow-ssh-secret:
     data: |
       gitSshKey: 'LS0tLS1CRUdJTiBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0KYjNCbGJuTnphQzFyWlhrdGRqRUFBQUFBQkc1dmJtVUFBQUFFYm05dVpRQUFBQUFBQUFBQkFBQUJsd0FBQUFkemMyZ3RjbgpOaEFBQUFBd0VBQVFBQUFZRUF1TU9NNDJ4L0kyUkNBMUhMZG43SFV2KzNIK1ppRW1TdDdzRFBXQkprWEF6T0FyRXV6MTdsClpEYnV2MkRzbjVCNno3QWEzZjRXWDJEZVdVTzF6YWlyQVhvRzRKUUFIMG00aW53Y0pUWHpoQjl2UnRaVHcxNVl2N1oxTjcKSGNIL2ZFNWFra01GN0plckNQaVNZdUl3ZDFUR1VQVk5GRWc4RldBMzB3bVJBdjVoODBlWDRoeklCRUF0anYzUk1BaVVwTAo1VForZnJJazdMS1FmazJ0dVpGQ00zSlpucStSWDFWODY0ZHM4dXpjZUlkSjBYN0Jnb1NxSXFBeU9ReWRTYys3OFJaV04xCmxBaVMzR2d0NUlTU2xya0FQMnhaejJVVVNXMmltSFpTQm9KNVV3MzlOK3lHb0dlYlU1VEkxRUJBNjl2K0hUK24xeDI2REIKWTk2WkpaYUVrYzdud094VEN1VGhnV0dhdGNMbGY2dHJyc0FYbFNnY3kyVUVPMzZlSzc0RmN3Y2lwY1pQcmRFeDJhSE5VOAptYk9kc3d4azlCMWd1VzlPWHZac1lCWWZpMUtJbzZQbGs5WmNiUFkwQjhiTVRDaHN0OEdVVm1TaVAwU3pzTzVHaXNnbTZXCitkOEt3SVlpM2E3NXV2bkJOWDdXalJWQmx4WEhMeDEycDR2UHJVa3JBQUFGa09lZjdURG5uKzB3QUFBQUIzTnphQzF5YzIKRUFBQUdCQUxqRGpPTnNmeU5rUWdOUnkzWit4MUwvdHgvbVloSmtyZTdBejFnU1pGd016Z0t4THM5ZTVXUTI3cjlnN0orUQplcyt3R3QzK0ZsOWczbGxEdGMyb3F3RjZCdUNVQUI5SnVJcDhIQ1UxODRRZmIwYldVOE5lV0wrMmRUZXgzQi8zeE9XcEpECkJleVhxd2o0a21MaU1IZFV4bEQxVFJSSVBCVmdOOU1Ka1FMK1lmTkhsK0ljeUFSQUxZNzkwVEFJbEtTK1UyZm42eUpPeXkKa0g1TnJibVJRak55V1o2dmtWOVZmT3VIYlBMczNIaUhTZEYrd1lLRXFpS2dNamtNblVuUHUvRVdWamRaUUlrdHhvTGVTRQprcGE1QUQ5c1djOWxGRWx0b3BoMlVnYUNlVk1OL1Rmc2hxQm5tMU9VeU5SQVFPdmIvaDAvcDljZHVnd1dQZW1TV1doSkhPCjU4RHNVd3JrNFlGaG1yWEM1WCtyYTY3QUY1VW9ITXRsQkR0K25pdStCWE1ISXFYR1Q2M1JNZG1oelZQSm16bmJNTVpQUWQKWUxsdlRsNzJiR0FXSDR0U2lLT2o1WlBXWEd6Mk5BZkd6RXdvYkxmQmxGWmtvajlFczdEdVJvcklKdWx2bmZDc0NHSXQydQorYnI1d1RWKzFvMFZRWmNWeHk4ZGRxZUx6NjFKS3dBQUFBTUJBQUVBQUFHQkFMaWVCVkJWNERBd0JOb21TQVN1SjJNaXl3CnVmKzR6ZmR3Q2pQa3VGalN5QlN2UmJzU2RhYmlJVjFiZjdGRlZZVzY3ZEMrdVg4U2o2dFJKQzJ3MlZwTkhENmMxTGRWZk8KSlF5VGVOZ2hzYUxxZWhreEhkK1FqV042NEdOM1lEbTlMTXhDbHp1UjZ3YWlGN3AySVJHMWFScWR2SlVHeWN4UlNpNFFVSgpnUkdadDZ3TWRKSm1LZUk5Y29oM3pDZVAyMTlHSWpjb0FNWjJMd0JmdCtpTUZzaU5hNVF4MlIxdE9JcTFyNUpmOFNlRFlqCkVMcTVTb2l0SVFlYVJMVEdpdi92QmV5WDJ5dzVCQnJUaWJIR01wc0xDeElpRFJkUjBNdnd3R3F4dVgvSUJVMHBSNVJJU1kKdDlkMXNOMGE1b1ZoMmFwTnFHV21FSVhTWDVwdkJvckdDQzZlYmpmTXowRHJIcXlCVHJYOFlWV21sendOVlhlaVpicVRSdwpWcjk4a1dGK3pPR0xxYUs3Vkp2Q1NzRCtzcE9neGpYZE9TdHFad1FUUnE3bXg4ai9PTTFadDc3TEd1b002NTZsaXZxcFBvCnNzaVRWRmJGdmJTQjRYOVJoNm02cy8weVcwQUNnL2gwbnBwUjlZY2ZvNi84djIxTXMrSG5BR1FUWUpsWW5vNEV2dnNRQUEKQU1Bdng5dm5Nb2FrOHVrR0FtNlRaV0hsam1kUWZEbnhxMjFVdlNncHZGUVk5blZCMFhxSEp5MURTRjR4RXdJeUJycHpYKwo4UVNET1lFUXR5bW1FbFYrTUtDcGlUR3NhR3ZrV3RUeVFXdGJ2MHZodVVORndQVjhRY0V0ZmZ5KzBOR3NiQnllMHhjeVQ1Ck9BckZOUFFlVkNKVHA4Uk1pZVE3QXF5dGE4SU9QZk9pQXI4dlRsLzVkeTA5MXAwdmwwNlUyZVhJd3lMc0hvcDFIYXJjY2cKeVlBKzhhUEYwM09MWUVKZElDMWtHdzc5VGtyTWdFU2dMUlVWSk9yQjdhMkRpTmkrUUFBQURCQU9NQWNtSm1XeTM1d0xTTwpBYmNaRThMSnRlT0t3akEvNlM5N2wvaHljSmtqV3hFK0RlM3VvejVRTTV4SWhSVk9QNmE3M3NhMUpvcmloS2JIL2pFWUZNClpMYnV1b0tvWXdBMWlYTC82SEhxVVByRXBNQVkxaHJadXR4SW1GMjMwWjhISGpDT3B4czh0YXUxOURXRCt4M0dNcllCUkIKTW85SXp6YU9sR2ZQU3ZPaWM0TGxjbm9LVWV1VUJiNUoxaEU3WkpOWm9PeXUzSlY4K0VuMEMxbzFjT0NFeEhlOUx5RDdKMQpjLzQrQ3YvenJ2cXo3U2pIYlRwM1BkREoyR1JHZjFPUUFBQU1FQTBGM1FaUDluaFVyRDBOcmp6aVdwNzJueEtORmtHZEd5Ckp5Q1dFbDkwMVRoYW5Yckt0NXR0eFBsQmUvUk9ZbVBGS3lOVnhxTE9xcEpWRStCSVdOb2pwb3EzbGxQQytvRGJ6SjZaU3cKNFpRamc1UjZRSkYxeTZrS0lEUnh3bjNieEljd3MvbVhybUxDdy9MaERPQ1gxSU9tdEFBSmNpSndzcmFBU3gxM3pYV2xLLwoya1pxUW9ZNjAzQm5TeXFKZlY0RzcwMW1TQVZjejFVNWh4ajRPQlpoZk8xT1Y0MndrWVpCakdTMGRqWFgrL3JTL3Bmc2JDCkdNQVllZXBnSTBaaldEQUFBQUZXNXBkR2x1UUVSRlUwdFVUMUF0VHpKTFRFRlRNZ0VDQXdRRgotLS0tLUVORCBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0K'
+  #prod-airflow-connections:
+  #  stringData: |
+  #    slack_conn: 'slackwebhook://:T00000000%2FB00000000%2FXXXXXXXXXXXXXXXXXXXXXXXX@/?timeout=42'
+
+      
+#data: | 
+#AIRFLOW_CONN_DATABRICKS_DEFAULT: 'ZGF0YWJyaWNrczovL0BodHRwczovL2FkYi01MDY4NjM5MTQ3MjQzNjA0LjQuYXp1cmVkYXRhYnJpY2tzLm5ldD90b2tlbj1kYXBpY2VmN2FkOGJkZGM4MjZhYzNiMWNjZmJlNTg2ZDE0NjAK'
+
+  
 # eg:
 # extraSecrets:
 #   '{{ .Release.Name }}-airflow-connections':
@@ -386,6 +408,7 @@ extraConfigMaps: {}
 extraEnv: |
   - name: AIRFLOW__CORE__LOAD_EXAMPLES
     value: 'True'
+
 
 # Extra envFrom 'items' that will be added to the definition of airflow containers
 # A string is expected (can be templated).
@@ -693,7 +716,7 @@ workers:
   #   memory: 2500Mi
 
   # Grace period for tasks to finish after SIGTERM is sent from kubernetes
-  terminationGracePeriodSeconds: 600
+  terminationGracePeriodSeconds: 300
 
   # This setting tells kubernetes that its ok to evict
   # when it wants to scale a node down.
@@ -2343,6 +2366,8 @@ postgresql:
 # Do not set config containing secrets via plain text values, use Env Var or k8s secret object
 # yamllint disable rule:line-length
 config:
+  api:
+    airflow.api.auth.backend.session: 'airflow.api.auth.backend.deny_all'
   core:
     dags_folder: '{{ include "airflow_dags" . }}'
     # This is ignored when used with the official Docker image
